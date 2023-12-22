@@ -7,6 +7,6 @@ module raphael.luft.passkeys {
     requires com.dlsc.formsfx;
     requires org.kordamp.bootstrapfx.core;
 
-    opens raphael.luft.passkeys to javafx.fxml;
-    exports raphael.luft.passkeys;
+    exports raphael.luft.passkeys.client;
+    opens raphael.luft.passkeys.client to javafx.fxml;
 }

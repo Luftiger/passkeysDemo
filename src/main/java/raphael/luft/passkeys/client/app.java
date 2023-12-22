@@ -1,4 +1,4 @@
-package raphael.luft.passkeys;
+package raphael.luft.passkeys.client;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

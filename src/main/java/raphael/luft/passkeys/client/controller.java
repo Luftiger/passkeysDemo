@@ -1,4 +1,4 @@
-package raphael.luft.passkeys;
+package raphael.luft.passkeys.client;
 
 import javafx.fxml.FXML;
 import javafx.scene.web.WebView;
