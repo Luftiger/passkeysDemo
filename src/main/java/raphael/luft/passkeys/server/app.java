@@ -1,4 +1,4 @@
-package raphael.luft.passkeys.client;
+package raphael.luft.passkeys.server;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -12,11 +12,12 @@ public class app extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(app.class.getResource("view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("PasskeyDemo Client");
+        stage.setTitle("PasskeyDemo Server");
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();

@@ -1,17 +1,19 @@
-package raphael.luft.passkeys.client;
+package raphael.luft.passkeys.server;
 
+import javafx.beans.NamedArg;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.web.WebView;
-import javafx.scene.control.TextField;
 
 public class controller {
     private StringBuilder sb;
 
     @FXML
-    private TextField usernameField;
-
+    private WebView mainOutput;
     @FXML
-    private WebView outputArea;
+    private WebView statistics;
+    @FXML
+    private WebView user;
 
     @FXML
     public void initialize() {
@@ -23,15 +25,13 @@ public class controller {
         }</style>""");
     }
 
-
     @FXML
-    protected void RegistrationHandler() {
-        addOutput("<b>Registrierung läuft...</b>");
-
+    protected void startHandler() {
+        addOutput("<b>Starten...</b>");
     }
 
     private void addOutput(String s) {
         sb.append(s).append("<br/>");
-        outputArea.getEngine().loadContent(sb.toString());
+        mainOutput.getEngine().loadContent(sb.toString());
     }
 }
