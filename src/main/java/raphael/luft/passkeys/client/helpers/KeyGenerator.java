@@ -16,7 +16,7 @@ public class KeyGenerator {
         //TODO: check type
 
         // neuen Generator erstellen
-        this.generator = KeyPairGenerator.getInstance("DSA");
+        this.generator = KeyPairGenerator.getInstance(algorithm);
         this.generator.initialize(keySize);
 
         // Keys generieren
