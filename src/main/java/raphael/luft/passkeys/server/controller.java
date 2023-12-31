@@ -1,11 +1,10 @@
 package raphael.luft.passkeys.server;
 
-import javafx.beans.NamedArg;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.web.WebView;
 
-public class controller {
+public class controller{
     private StringBuilder sb;
 
     @FXML

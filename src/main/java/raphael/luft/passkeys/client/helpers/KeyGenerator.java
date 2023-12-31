@@ -1,26 +1,19 @@
 package raphael.luft.passkeys.client.helpers;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 
 
 public class KeyGenerator {
-    private KeyPairGenerator generator;
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
-    private KeyPair pair;
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
 
-    public KeyGenerator(String algorithm, int keySize) throws Exception {
-        //TODO: check type
-
+    public KeyGenerator(String alg) throws NoSuchAlgorithmException {
         // neuen Generator erstellen
-        this.generator = KeyPairGenerator.getInstance(algorithm);
-        this.generator.initialize(keySize);
+        KeyPairGenerator generator = KeyPairGenerator.getInstance(alg);
+        generator.initialize(2048);
 
         // Keys generieren
-        this.pair = generator.generateKeyPair();
+        KeyPair pair = generator.generateKeyPair();
         this.privateKey = pair.getPrivate();
         this.publicKey = pair.getPublic();
     }

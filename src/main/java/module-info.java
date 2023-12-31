@@ -3,9 +3,7 @@ module raphael.luft.passkeys {
     requires javafx.fxml;
     requires javafx.web;
 
-    requires org.controlsfx.controls;
-    requires com.dlsc.formsfx;
-    requires org.kordamp.bootstrapfx.core;
+    requires java.sql;
 
     exports raphael.luft.passkeys.client;
     opens raphael.luft.passkeys.client to javafx.fxml;
