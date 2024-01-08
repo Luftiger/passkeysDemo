@@ -1,5 +1,0 @@
-module:raphael.luft.passkeys
-raphael.luft.passkeys.client
-raphael.luft.passkeys.client.helpers
-raphael.luft.passkeys.server
-raphael.luft.passkeys.server.helpers
