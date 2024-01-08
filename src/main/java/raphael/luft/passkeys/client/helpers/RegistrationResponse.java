@@ -1,85 +1,55 @@
 package raphael.luft.passkeys.client.helpers;
 
-import java.nio.charset.StandardCharsets;
-import java.security.*;
-import java.util.Base64;
 
-public class RegistrationResponse {
-    private final String optionsAsString;
-    private String id;
-    private final String displayName;
-    private String unsignedChallenge;
+/**
+ * Von der abstrakten Klasse Credential abgeleitete Klasse,
+ * die eine Antwort auf eine Registrierungsherausforderung repräsentiert.
+ */
+public class RegistrationResponse extends Credential{
 
-    private PrivateKey privateKey;
-
-    private String challenge;
-    private PublicKey publicKey;
-    private String algorithm;
-
-    private KeyGenerator keyGen;
-
-    public RegistrationResponse(String optionsAsString, String displayName){
-        this.optionsAsString = optionsAsString;
-        convertOptions();
-
+    /**
+     * Konstruktor für die RegistrationResponse-Klasse.
+     *
+     * @param optionsAsString Vom Server übermittelte Optionen als String.
+     * @param displayName     Anzeigename
+     */
+    public RegistrationResponse(String optionsAsString, String displayName) {
+        this.splitStringOptions(optionsAsString);
         this.displayName = displayName;
     }
 
+
+    /**
+     * Generiert die Antwort für den Server und gibt diese als String zurück.
+     *
+     * @return Generierte Antwort auf die Herausforderung.
+     */
     public String generateResponse() {
-        try {
-            this.keyGen = new KeyGenerator(this.algorithm);
-        } catch (NoSuchAlgorithmException e) {
-            try {
-                this.keyGen = new KeyGenerator("DSA");
-            } catch (NoSuchAlgorithmException ignored) {}
-        }
-        this.publicKey = this.keyGen.getPublicKey();
+        KeyGenerator keyGen = new KeyGenerator(this.algorithm);
+        this.publicKey = keyGen.getPublicKey();
         this.algorithm = this.publicKey.getAlgorithm();
 
-        this.privateKey = this.keyGen.getPrivateKey();
-        signChallenge();
+        this.privateKey = keyGen.getPrivateKey();
+        String resp = this.signChallenge();
+        if (resp.startsWith("Beim")) {
+            return "[E]" + resp;
+        } else this.challenge = resp;
 
-        //TODO: keys mit Userdaten abspeichern
-
-        return convertResponseToString();
+        return this.convertToString("RR");
     }
 
-    private void convertOptions() {
-        String[] s = this.optionsAsString.split("\\|");
+
+    /**
+     * Teilt die vom Server gegebenen Optionen aus einem String auf und setzt die entsprechenden Werte.
+     *
+     * @param optionsAsString Optionen als String.
+     */
+    private void splitStringOptions(String optionsAsString) {
+        String[] s = optionsAsString.split("\\|");
         this.id = s[1];
         this.unsignedChallenge = s[2];
         this.algorithm = s[3];
     }
 
-    private void signChallenge() {
-        try{
-            Signature signature = Signature.getInstance(this.algorithm);
-            signature.initSign(this.privateKey);
-            byte[] raw = this.unsignedChallenge.getBytes(StandardCharsets.UTF_8);
-            signature.update(raw);
-            byte[] signed = signature.sign();
-            this.challenge = Base64.getEncoder().encodeToString(signed);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException ignored) {}
-    }
 
-    private String convertResponseToString() {
-        return "[RE]|" + this.id + "|" + this.displayName + "|"
-                + this.publicKey.toString() + "|" + this.algorithm + "|" + this.challenge;
-    }
-
-    private String getId() {
-        return this.id;
-    }
-
-    private PrivateKey getPrivateKey() {
-        return this.privateKey;
-    }
-
-    private String getPublicKeyAsString() {
-        return this.publicKey.toString();
-    }
-
-    private String getChallenge() {
-        return this.challenge;
-    }
 }

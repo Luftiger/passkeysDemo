@@ -24,67 +24,12 @@ package raphael.luft.passkeys.server.helpers;
  * @version Generisch_03 2014-03-01
  */
 public class List<ContentType> {
-    /* --------- Anfang der privaten inneren Klasse -------------- */
-    public class ListNode {
-        private ContentType contentObject;
-        private ListNode next;
-
-        /**
-         * Ein neues Objekt wird erschaffen. Der Verweis ist leer.
-         *
-         * @param pContent das Inhaltsobjekt vom Typ ContentType
-         */
-        public ListNode(ContentType pContent) {
-            contentObject = pContent;
-            next = null;
-        }
-
-        /**
-         * Der Inhalt des Knotens wird zurueckgeliefert.
-         *
-         * @return das Inhaltsobjekt des Knotens
-         */
-        public ContentType getContentObject() {
-            return contentObject;
-        }
-
-        /**
-         * Der Inhalt dieses Kontens wird gesetzt.
-         *
-         * @param pContent das Inhaltsobjekt vom Typ ContentType
-         */
-        public void setContentObject(ContentType pContent) {
-            contentObject = pContent;
-        }
-
-        /**
-         * Der Nachfolgeknoten wird zurueckgeliefert.
-         *
-         * @return das Objekt, auf das der aktuelle Verweis zeigt
-         */
-        public ListNode getNextNode() {
-            return this.next;
-        }
-
-        /**
-         * Der Verweis wird auf das Objekt, das als Parameter uebergeben
-         * wird, gesetzt.
-         *
-         * @param pNext der Nachfolger des Knotens
-         */
-        public void setNextNode(ListNode pNext) {
-            this.next = pNext;
-        }
-    }
-
-    /* ----------- Ende der privaten inneren Klasse -------------- */
-
     // erstes Element der Liste
     ListNode first;
 
+    /* ----------- Ende der privaten inneren Klasse -------------- */
     // letztes Element der Liste
     ListNode last;
-
     // aktuelles Element der Liste
     ListNode current;
 
@@ -158,7 +103,7 @@ public class List<ContentType> {
      * die Anfrage den Wert null zurueck.
      *
      * @return das aktuelle Objekt (vom Typ ContentType) oder null, wenn es
-     *         kein aktuelles Objekt gibt
+     * kein aktuelles Objekt gibt
      */
     public ContentType getContent() {
         if (this.hasAccess()) {
@@ -173,8 +118,7 @@ public class List<ContentType> {
      * ungleich null ist, wird das aktuelle Objekt durch pContent ersetzt. Sonst
      * geschieht nichts.
      *
-     * @param pContent
-     *            das zu schreibende Objekt vom Typ ContentType
+     * @param pContent das zu schreibende Objekt vom Typ ContentType
      */
     public void setContent(ContentType pContent) {
         // Nichts tun, wenn es keinen Inhalt oder kein aktuelles Element gibt.
@@ -192,8 +136,7 @@ public class List<ContentType> {
      * Falls es kein aktuelles Objekt gibt (hasAccess() == false) und die Liste
      * nicht leer ist oder pContent gleich null ist, geschieht nichts.
      *
-     * @param pContent
-     *            das einzufuegende Objekt vom Typ ContentType
+     * @param pContent das einzufuegende Objekt vom Typ ContentType
      */
     public void insert(ContentType pContent) {
         if (pContent != null) { // Nichts tun, wenn es keinen Inhalt gibt.
@@ -233,8 +176,7 @@ public class List<ContentType> {
      * Wenn die Liste leer ist, wird das Objekt pContent in die Liste eingefuegt
      * und es gibt weiterhin kein aktuelles Objekt (hasAccess() == false).
      *
-     * @param pContent
-     *            das anzuhaengende Objekt vom Typ ContentType
+     * @param pContent das anzuhaengende Objekt vom Typ ContentType
      */
     public void append(ContentType pContent) {
         if (pContent != null) { // Nichts tun, wenn es keine Inhalt gibt.
@@ -258,8 +200,7 @@ public class List<ContentType> {
      * Anschliessend wird pList eine leere Liste. Das aktuelle Objekt bleibt
      * unveraendert. Insbesondere bleibt hasAccess identisch.
      *
-     * @param pList
-     *            die am Ende anzuhaengende Liste vom Typ List<ContentType>
+     * @param pList die am Ende anzuhaengende Liste vom Typ List<ContentType>
      */
     public void concat(List<ContentType> pList) {
         if ((pList != null) && !pList.isEmpty()) { // Nichts tun, wenn pList leer oder nicht existent.
@@ -320,11 +261,10 @@ public class List<ContentType> {
      * == null, pNode nicht in der Liste oder pNode der erste Knoten der Liste,
      * wird null zurueckgegeben.
      *
-     * @param pNode
-     *         der Knoten, dessen Vorgaenger zurueckgegeben werden soll
+     * @param pNode der Knoten, dessen Vorgaenger zurueckgegeben werden soll
      * @return der Vorgaenger des Knotens pNode oder null, falls die Liste leer ist,
-     *         pNode == null ist, pNode nicht in der Liste ist oder pNode der erste Knoten
-     *         der Liste ist
+     * pNode == null ist, pNode nicht in der Liste ist oder pNode der erste Knoten
+     * der Liste ist
      */
     private ListNode getPrevious(ListNode pNode) {
         if ((pNode != null) && (pNode != first) && !this.isEmpty()) {
@@ -337,6 +277,59 @@ public class List<ContentType> {
             return temp;
         } else {
             return null;
+        }
+    }
+
+    /* --------- Anfang der privaten inneren Klasse -------------- */
+    public class ListNode {
+        private ContentType contentObject;
+        private ListNode next;
+
+        /**
+         * Ein neues Objekt wird erschaffen. Der Verweis ist leer.
+         *
+         * @param pContent das Inhaltsobjekt vom Typ ContentType
+         */
+        public ListNode(ContentType pContent) {
+            contentObject = pContent;
+            next = null;
+        }
+
+        /**
+         * Der Inhalt des Knotens wird zurueckgeliefert.
+         *
+         * @return das Inhaltsobjekt des Knotens
+         */
+        public ContentType getContentObject() {
+            return contentObject;
+        }
+
+        /**
+         * Der Inhalt dieses Kontens wird gesetzt.
+         *
+         * @param pContent das Inhaltsobjekt vom Typ ContentType
+         */
+        public void setContentObject(ContentType pContent) {
+            contentObject = pContent;
+        }
+
+        /**
+         * Der Nachfolgeknoten wird zurueckgeliefert.
+         *
+         * @return das Objekt, auf das der aktuelle Verweis zeigt
+         */
+        public ListNode getNextNode() {
+            return this.next;
+        }
+
+        /**
+         * Der Verweis wird auf das Objekt, das als Parameter uebergeben
+         * wird, gesetzt.
+         *
+         * @param pNext der Nachfolger des Knotens
+         */
+        public void setNextNode(ListNode pNext) {
+            this.next = pNext;
         }
     }
 }

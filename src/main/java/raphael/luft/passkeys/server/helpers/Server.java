@@ -30,8 +30,8 @@ import java.net.*;
 
 
 public abstract class Server {
-    private final NewConnectionHandler connectionHandler;
-    private final List<ClientMessageHandler> messageHandlers;
+    private NewConnectionHandler connectionHandler;
+    private List<ClientMessageHandler> messageHandlers;
 
     private class NewConnectionHandler extends Thread {
         private ServerSocket serverSocket;
@@ -51,7 +51,7 @@ public abstract class Server {
         public void run() {
             while (active) {
                 try {
-                    //Warten auf Verbindungsversuch durch Client:
+                    //Warten auf Verbdinungsversuch durch Client:
                     Socket clientSocket = serverSocket.accept();
                     // Eingehende Nachrichten vom neu verbundenen Client werden
                     // in einem eigenen Thread empfangen:
@@ -85,7 +85,7 @@ public abstract class Server {
     }
 
     private class ClientMessageHandler extends Thread {
-        private final ClientSocketWrapper socketWrapper;
+        private ClientSocketWrapper socketWrapper;
         private boolean active;
 
         private class ClientSocketWrapper {
@@ -109,7 +109,7 @@ public abstract class Server {
                 if (fromClient != null) {
                     try {
                         return fromClient.readLine();
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
                     }
                 }
 
