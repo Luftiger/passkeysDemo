@@ -5,6 +5,8 @@ import javafx.scene.web.WebView;
 
 import raphael.luft.passkeys.server.helpers.*;
 
+import java.util.Objects;
+
 /**
  * Die Controller-Klasse für die PassKeys-Anwendung. Steuert die Benutzeroberfläche und behandelt
  * die Benutzerinteraktionen.
@@ -25,7 +27,9 @@ public class Controller {
      */
     @FXML
     public void initialize() {
-        this.mainOutput.getEngine().setUserStyleSheetLocation(getClass().getResource("style.css").toString());
+        try {
+            this.mainOutput.getEngine().setUserStyleSheetLocation(Objects.requireNonNull(getClass().getResource("style.css")).toString());
+        } catch (NullPointerException ignored) {}
         this.sb = new StringBuilder();
 
         Database database = new Database("data/serverDB.db");

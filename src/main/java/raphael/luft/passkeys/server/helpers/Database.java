@@ -47,13 +47,12 @@ public class Database {
      * @return "s" bei erfolgreicher Erstellung, andernfalls die Fehlermeldung.
      */
     public String createTable() {
-        String sql = """
-                CREATE TABLE credentials (
-                     id TEXT NOT NULL,\s
-                     displayName TEXT NOT NULL,\s
-                     publicKey BYTES NOT NULL,\s
-                     algorithm TEXT NOT NULL\s
-                );""";
+        String sql = "CREATE TABLE credentials ("
+                   + "id TEXT NOT NULL,"
+                   + "displayName TEXT NOT NULL,"
+                   + "publicKey BYTES NOT NULL,"
+                   + "algorithm TEXT NOT NULL"
+                   + ");";
         try {
             Statement stmt = this.conn.createStatement();
             stmt.execute(sql);

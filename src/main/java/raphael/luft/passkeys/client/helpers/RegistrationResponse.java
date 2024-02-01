@@ -6,6 +6,7 @@ package raphael.luft.passkeys.client.helpers;
  * die eine Antwort auf eine Registrierungsherausforderung repräsentiert.
  */
 public class RegistrationResponse extends Credential{
+    private KeyGenerator keyGen;
 
     /**
      * Konstruktor für die RegistrationResponse-Klasse.
@@ -25,11 +26,11 @@ public class RegistrationResponse extends Credential{
      * @return Generierte Antwort auf die Herausforderung.
      */
     public String generateResponse() {
-        KeyGenerator keyGen = new KeyGenerator(this.algorithm);
-        this.publicKey = keyGen.getPublicKey();
+        this.keyGen = new KeyGenerator(this.algorithm);
+        this.publicKey = this.keyGen.getPublicKey();
         this.algorithm = this.publicKey.getAlgorithm();
 
-        this.privateKey = keyGen.getPrivateKey();
+        this.privateKey = this.keyGen.getPrivateKey();
         String resp = this.signChallenge();
         if (resp.startsWith("Beim")) {
             return "[E]" + resp;

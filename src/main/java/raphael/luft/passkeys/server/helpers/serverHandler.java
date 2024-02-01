@@ -11,7 +11,7 @@ import java.util.HashMap;
  * Verbindungen, Nachrichten und Anfragen im Zusammenhang mit der Server-Funktionalität.
  */
 public class serverHandler extends Server {
-    private final HashMap<String, ConnectedClient> connectedClients = new HashMap<>();
+    private final HashMap<String, ConnectedClient> connectedClients;
 
     private final StringBuilder sb;
     private final WebView userView;
@@ -30,7 +30,7 @@ public class serverHandler extends Server {
      */
     public serverHandler(WebView userView, StringBuilder sb, WebView mainOutput, Database database) {
         super(5000);
-
+        this.connectedClients = new HashMap<>();
         this.userView = userView;
         this.sb = sb;
         this.mainOutput = mainOutput;

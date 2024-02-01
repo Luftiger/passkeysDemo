@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -27,11 +28,18 @@
                 <Font size="24.0" />
             </font>
         </Label>
-        <WebView fx:id="userView" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+        <WebView fx:id="userView" prefHeight="126.0" prefWidth="274.0" GridPane.columnSpan="3" GridPane.rowIndex="2" />
         <WebView fx:id="mainOutput" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="3" GridPane.rowIndex="4" />
-        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="aktive Verbindungen:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Informationen:" GridPane.rowIndex="3" />
-        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Statistiken:" GridPane.rowIndex="1" />
-        <WebView fx:id="statistics" prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="2" />
+        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="aktive Verbindungen:" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets />
+         </GridPane.margin>
+         <padding>
+            <Insets left="5.0" />
+         </padding></Label>
+        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Informationen:" GridPane.rowIndex="3">
+         <padding>
+            <Insets left="5.0" />
+         </padding></Label>
     </GridPane>
 </VBox>
