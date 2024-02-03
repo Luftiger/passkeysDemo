@@ -146,7 +146,7 @@ public class List<ContentType> {
                 // Neuen Knoten erstellen.
                 ListNode newNode = new ListNode(pContent);
 
-                if (current != first) { // Fall: Nicht an erster Stelle einfuegen.
+                if (current != first) { // Fall: nicht an erster Stelle einfuegen.
 
                     ListNode previous = this.getPrevious(current);
                     newNode.setNextNode(previous.getNextNode());
@@ -157,7 +157,7 @@ public class List<ContentType> {
                 }
             } else { //Fall: Es gibt kein aktuelles Element.
 
-                if (this.isEmpty()) { // Fall: In leere Liste einfuegen.
+                if (this.isEmpty()) { // Fall: in leere Liste einfuegen.
 
                     // Neuen Knoten erstellen.
                     ListNode newNode = new ListNode(pContent);

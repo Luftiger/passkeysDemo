@@ -2,11 +2,14 @@ package raphael.luft.passkeys.client.helpers;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.MessageDigest;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.sql.Connection;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Base64;
 
 
 /**
@@ -53,6 +56,7 @@ public class Database {
                 + "id TEXT NOT NULL,"
                 + "displayName TEXT NOT NULL,"
                 + "privateKey BYTES NOT NULL,"
+                + "checksum TEXT NOT NULL,"
                 + "algorithm TEXT NOT NULL "
                 + ");";
         try {
@@ -68,7 +72,7 @@ public class Database {
     /**
      * Trennt die Verbindung zur Datenbank.
      *
-     * @return "s" bei erfolgreicher Trennung, "NPE" bei NullpointerException, andernfalls die Fehlermeldung.
+     * @return "s" bei erfolgreicher Trennung, "NPE" bei NullPointerException, andernfalls die Fehlermeldung.
      */
     public String disconnect() {
         try {
@@ -91,16 +95,21 @@ public class Database {
      * @return "s" bei erfolgreicher Hinzufügung, andernfalls die Fehlermeldung.
      */
     public String addCredential(RegistrationResponse response) {
-        String sql = "INSERT INTO credentials(id,displayName,privateKey,algorithm) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO credentials(id,displayName,privateKey,checksum,algorithm) VALUES (?,?,?,?,?)";
         try {
             PreparedStatement stmt = this.conn.prepareStatement(sql);
             stmt.setString(1, response.getId());
             stmt.setString(2, response.getDisplayName());
             stmt.setBytes(3, response.getPrivateKey().getEncoded());
-            stmt.setString(4, response.getAlgorithm());
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(response.getPrivateKey().getEncoded());
+            stmt.setString(4, Base64.getEncoder().encodeToString(hash));
+
+            stmt.setString(5, response.getAlgorithm());
             stmt.executeUpdate();
             return "s";
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchAlgorithmException e) {
             return e.getMessage();
         }
     }
@@ -109,14 +118,14 @@ public class Database {
     /**
      * Entfernt eine Anmeldeinformation aus der Datenbank.
      *
-     * @param id Die eindeutige ID der Anmeldeinformation.
+     * @param name Der Anzeigename der Anmeldeinformation.
      * @return "s" bei erfolgreicher Entfernung, andernfalls die Fehlermeldung.
      */
-    public String removeCredential(String id) {
-        String sql = "DELETE FROM credentials WHERE id = ?";
+    public String removeCredential(String name) {
+        String sql = "DELETE FROM credentials WHERE displayName = ?";
         try {
             PreparedStatement stmt = this.conn.prepareStatement(sql);
-            stmt.setString(1, id);
+            stmt.setString(1, name);
             stmt.executeUpdate();
             return "s";
         } catch (SQLException e) {
@@ -132,21 +141,29 @@ public class Database {
      * @return Eine Instanz von AuthenticationResponse bei erfolgreicher Abfrage, andernfalls null.
      */
     public AuthenticationResponse getCredentialByName(String displayName) {
-        String sql = "SELECT id,displayName,privateKey,algorithm FROM credentials WHERE displayName = ?";
+        String sql = "SELECT id,displayName,privateKey,checksum,algorithm FROM credentials WHERE displayName = ?";
         try {
             PreparedStatement stmt = this.conn.prepareStatement(sql);
             stmt.setString(1, displayName);
             ResultSet rs = stmt.executeQuery();
 
             byte[] encodedPrivateKey = rs.getBytes("privateKey");
-            KeyFactory kf = KeyFactory.getInstance(rs.getString("algorithm"));
 
-            return new AuthenticationResponse(
-                    rs.getString("id"),
-                    rs.getString("displayName"),
-                    kf.generatePrivate(new PKCS8EncodedKeySpec(encodedPrivateKey)),
-                    rs.getString("algorithm")
-            );
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashAsByte = digest.digest(encodedPrivateKey);
+            String hash = Base64.getEncoder().encodeToString(hashAsByte);
+
+            if (hash.equals(rs.getString("checksum"))) {
+                KeyFactory kf = KeyFactory.getInstance(rs.getString("algorithm"));
+                PrivateKey pK = kf.generatePrivate(new PKCS8EncodedKeySpec(encodedPrivateKey));
+
+                return new AuthenticationResponse(
+                        rs.getString("id"),
+                        rs.getString("displayName"),
+                        pK,
+                        rs.getString("algorithm")
+                );
+            } return null;
 
         } catch (InvalidKeySpecException | SQLException | NoSuchAlgorithmException e) {
             System.out.println(e.getMessage());
@@ -179,4 +196,5 @@ public class Database {
 
         return arr;
     }
+
 }
