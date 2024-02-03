@@ -24,7 +24,7 @@ public class ConnectedClient {
         this.ip = ip;
         this.port = port;
         this.verified = false;
-        this.displayName = "Unknown";
+        this.displayName = "Unbekannt";
     }
 
 

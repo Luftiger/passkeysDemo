@@ -29,6 +29,7 @@ public class Controller {
     public void initialize() {
         try {
             this.mainOutput.getEngine().setUserStyleSheetLocation(Objects.requireNonNull(getClass().getResource("style.css")).toString());
+            this.userView.getEngine().setUserStyleSheetLocation(Objects.requireNonNull(getClass().getResource("style.css")).toString());
         } catch (NullPointerException ignored) {}
         this.sb = new StringBuilder();
 

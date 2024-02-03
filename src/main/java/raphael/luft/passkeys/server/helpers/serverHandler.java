@@ -93,7 +93,7 @@ public class serverHandler extends Server {
             connectedClients.replace((ip + port), cC);
         } else {
             send(ip, port, "failed");
-            addOutput("<p>Anmeldeversuch durch " + ip + ":" + port + " fehlgeschlagen: ungültige Id erhalten</p>");
+            addOutput("<p class='warning'>Anmeldeversuch durch " + ip + ":" + port + " fehlgeschlagen: ungültige Id erhalten</p>");
         }
     }
 
@@ -123,6 +123,9 @@ public class serverHandler extends Server {
             connectedClients.replace((ip + port), cC);
             this.updateUserView();
             send(ip, port, "verified");
+        } else {
+            send(ip, port, "failed");
+            addOutput("<p class='warning'>Anmeldeversuch durch " + ip + ":" + port + " fehlgeschlagen: ungültige Challenge erhalten</p>");
         }
     }
 
