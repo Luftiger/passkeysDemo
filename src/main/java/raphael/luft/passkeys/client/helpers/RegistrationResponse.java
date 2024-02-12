@@ -28,9 +28,9 @@ public class RegistrationResponse extends Credential{
     public String generateResponse() {
         this.keyGen = new KeyGenerator(this.algorithm);
         this.publicKey = this.keyGen.getPublicKey();
+        this.privateKey = this.keyGen.getPrivateKey();
         this.algorithm = this.publicKey.getAlgorithm();
 
-        this.privateKey = this.keyGen.getPrivateKey();
         String resp = this.signChallenge();
         if (resp.startsWith("Beim")) {
             return "[E]" + resp;

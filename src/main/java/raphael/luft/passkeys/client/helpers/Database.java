@@ -57,7 +57,8 @@ public class Database {
                 + "displayName TEXT NOT NULL,"
                 + "privateKey BYTES NOT NULL,"
                 + "checksum TEXT NOT NULL,"
-                + "algorithm TEXT NOT NULL "
+                + "algorithm TEXT NOT NULL,"
+                + "createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
                 + ");";
         try {
             Statement stmt = this.conn.createStatement();

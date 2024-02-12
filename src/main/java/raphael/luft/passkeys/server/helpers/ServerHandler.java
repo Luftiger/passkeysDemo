@@ -7,32 +7,34 @@ import java.util.HashMap;
 
 
 /**
- * Diese Klasse `serverHandler` erweitert die Klasse `Server` und behandelt die Verarbeitung von
+ * Diese Klasse `ServerHandler` erweitert die Klasse `Server` und behandelt die Verarbeitung von
  * Verbindungen, Nachrichten und Anfragen im Zusammenhang mit der Server-Funktionalität.
  */
-public class serverHandler extends Server {
+public class ServerHandler extends Server {
     private final HashMap<String, ConnectedClient> connectedClients;
 
-    private final StringBuilder sb;
+    private final StringBuilder mainOutputSb;
     private final WebView userView;
     private final WebView mainOutput;
 
     private final Database database;
 
+    private ConnectedClient currentClient;
+
 
     /**
-     * Konstruktor für `serverHandler`.
+     * Konstruktor für `ServerHandler`.
      *
      * @param userView   Die `WebView` für die Benutzeransicht.
-     * @param sb         Der `StringBuilder` für die Ausgabemeldungen.
+     * @param mainOutputSb         Der `StringBuilder` für die Ausgabemeldungen.
      * @param mainOutput Die `WebView` für die Hauptausgabe.
      * @param database   Die `Database` für den Zugriff auf Benutzerinformationen.
      */
-    public serverHandler(WebView userView, StringBuilder sb, WebView mainOutput, Database database) {
+    public ServerHandler(WebView userView, StringBuilder mainOutputSb, WebView mainOutput, Database database) {
         super(5000);
         this.connectedClients = new HashMap<>();
         this.userView = userView;
-        this.sb = sb;
+        this.mainOutputSb = mainOutputSb;
         this.mainOutput = mainOutput;
 
         this.database = database;
@@ -47,8 +49,8 @@ public class serverHandler extends Server {
      */
     public void processNewConnection(String ip, int port) {
         addOutput("<p>Neue Verbindung zu Client: " + ip + ":" + port + "</p>");
-        ConnectedClient cC = new ConnectedClient(ip, port);
-        connectedClients.put((ip + port), cC);
+        this.currentClient = new ConnectedClient(ip, port);
+        this.connectedClients.put((ip + port), this.currentClient);
         updateUserView();
     }
 
@@ -69,6 +71,9 @@ public class serverHandler extends Server {
             this.handleAuthenticationAttempt(ip, port, msg);
         } else if (msg.startsWith("[AR]")) {
             this.handleAuthenticationResponse(ip, port, msg);
+        } else if (msg.startsWith("[E]")) {
+            addOutput("<p class='warning'>Clientseitiger Fehler bei der Antwort durch " + ip + ":" + port +
+                    ": '"+ msg + "' Vorgang abgebrochen</p>");
         }
     }
 
@@ -83,16 +88,16 @@ public class serverHandler extends Server {
         addOutput("<p>Anmeldeversuch durch " + ip + ":" + port + "</p>");
         Options options = new Options(msg);
 
-        if (database.idExists(options.getClientId())) {
+        if (this.database.idExists(options.getClientId())) {
             send(ip, port, options.toString());
             addOutput("<p>Challenge an " + ip + ":" + port + " gesendet</p>");
 
-            ConnectedClient cC = connectedClients.get(ip + port);
-            cC.setId(options.getClientId());
-            cC.setOptions(options);
-            connectedClients.replace((ip + port), cC);
+            this.currentClient = this.connectedClients.get(ip + port);
+            this.currentClient.setId(options.getClientId());
+            this.currentClient.setOptions(options);
+            this.connectedClients.replace((ip + port), this.currentClient);
         } else {
-            send(ip, port, "failed");
+            send(ip, port, "[E]");
             addOutput("<p class='warning'>Anmeldeversuch durch " + ip + ":" + port + " fehlgeschlagen: ungültige Id erhalten</p>");
         }
     }
@@ -107,24 +112,24 @@ public class serverHandler extends Server {
      */
     private void handleAuthenticationResponse(String ip, int port, String msg) {
         addOutput("<p>Antwort von " + ip + ":" + port + " erhalten</p>");
-        ConnectedClient cC = connectedClients.get(ip + port);
+        this.currentClient = this.connectedClients.get(ip + port);
 
         // 0:[AR]|1:id|2:displayName|3:challenge
         String[] r = msg.split("\\|");
 
-        User currentUser = database.getCredential(r[1]);
+        User currentUser = this.database.getCredential(r[1]);
         currentUser.setRecentSignedChallenge(r[3]);
-        currentUser.setRecentChallenge(cC.getOptions().getChallenge());
+        currentUser.setRecentChallenge(this.currentClient.getOptions().getChallenge());
 
         if (currentUser.challengeIsValid()) {
-            addOutput("<p class='important'>" + ip + ":" + port + " erfolgreich verifiziert</p>");
-            cC.setVerified(true);
-            cC.setDisplayName(currentUser.getDisplayName());
-            connectedClients.replace((ip + port), cC);
+            addOutput("<p class='important'>" + currentUser.getDisplayName() + "|" + ip + ":" + port + " erfolgreich verifiziert</p>");
+            this.currentClient.setVerified(true);
+            this.connectedClients.replace((ip + port), this.currentClient);
+            this.currentClient.setUserData(currentUser);
             this.updateUserView();
-            send(ip, port, "verified");
+            send(ip, port, "[V]");
         } else {
-            send(ip, port, "failed");
+            send(ip, port, "[E]");
             addOutput("<p class='warning'>Anmeldeversuch durch " + ip + ":" + port + " fehlgeschlagen: ungültige Challenge erhalten</p>");
         }
     }
@@ -142,10 +147,10 @@ public class serverHandler extends Server {
         send(ip, port, options.toString());
         addOutput("<p>ID und Challenge an " + ip + ":" + port + " gesendet</p>");
 
-        ConnectedClient cC = connectedClients.get(ip + port);
-        cC.setId(options.getClientId());
-        cC.setOptions(options);
-        connectedClients.replace((ip + port), cC);
+        this.currentClient = this.connectedClients.get(ip + port);
+        this.currentClient.setId(options.getClientId());
+        this.currentClient.setOptions(options);
+        this.connectedClients.replace((ip + port), this.currentClient);
     }
 
 
@@ -158,21 +163,21 @@ public class serverHandler extends Server {
      */
     private void handleRegistrationRequest(String ip, int port, String msg) {
         addOutput("<p>Antwort von " + ip + ":" + port + " erhalten</p>");
-        ConnectedClient cC = connectedClients.get(ip + port);
+        this.currentClient = this.connectedClients.get(ip + port);
         User currentUser = new User(msg);
-        currentUser.setRecentChallenge(cC.getOptions().getChallenge());
+        currentUser.setRecentChallenge(this.currentClient.getOptions().getChallenge());
         if(currentUser.challengeIsValid()) {
-            addOutput("<p class='important'>" + ip + ":" + port + " erfolgreich verifiziert</p>");
-            cC.setVerified(true);
-            cC.setDisplayName(currentUser.getDisplayName());
-            connectedClients.replace((ip + port), cC);
-            this.updateUserView();
+            addOutput("<p class='important'>" + currentUser.getDisplayName() + "|" + ip + ":" + port + " erfolgreich verifiziert</p>");
+            this.currentClient.setVerified(true);
+            this.connectedClients.replace((ip + port), this.currentClient);
             this.database.addCredential(currentUser);
-            send(ip, port, "accepted");
+            this.currentClient.setUserData(currentUser);
+            this.updateUserView();
+            send(ip, port, "[A]");
         } else {
             addOutput("<p>" + ip + ":" + port + " abgelehnt: signierte Challenge ungültig</p>");
-            connectedClients.remove((ip + port));
-            send(ip, port, "failed");
+            this.connectedClients.remove((ip + port));
+            send(ip, port, "[E]");
         }
     }
 
@@ -185,7 +190,7 @@ public class serverHandler extends Server {
      */
     public void processClosingConnection(String ip, int port) {
         addOutput("<p>Verbindung zu Client " + ip + ":" + port + " beendet</p>");
-        connectedClients.remove(ip + port);
+        this.connectedClients.remove(ip + port);
         this.updateUserView();
     }
 
@@ -195,9 +200,9 @@ public class serverHandler extends Server {
      */
     public void updateUserView() {
         Platform.runLater(() -> {
-            StringBuilder users = new StringBuilder();
-            connectedClients.forEach((key, connectedClient) -> users.append(connectedClient.getInfoAsString()));
-            userView.getEngine().loadContent(users.toString());
+            StringBuilder userSb = new StringBuilder();
+            this.connectedClients.forEach((key, connectedClient) -> userSb.append(connectedClient.getInfoAsString()));
+            this.userView.getEngine().loadContent(userSb.toString());
         });
     }
 
@@ -209,8 +214,8 @@ public class serverHandler extends Server {
      */
     public void addOutput(String s) {
         Platform.runLater(() -> {
-            sb.append(s);
-            mainOutput.getEngine().loadContent(sb.toString());
+            mainOutputSb.append(s);
+            mainOutput.getEngine().loadContent(mainOutputSb.toString());
         });
 
     }

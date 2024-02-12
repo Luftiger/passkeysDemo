@@ -9,8 +9,8 @@ public class ConnectedClient {
     private final String ip;
     private final int port;
     private String id;
-    private String displayName;
     private Options options;
+    private User userData;
     private boolean verified;
 
 
@@ -24,7 +24,6 @@ public class ConnectedClient {
         this.ip = ip;
         this.port = port;
         this.verified = false;
-        this.displayName = "Unbekannt";
     }
 
 
@@ -34,7 +33,11 @@ public class ConnectedClient {
      * @return Die formatierte Zeichenkette mit Anzeigename, IP-Adresse und Port.
      */
     public String getInfoAsString() {
-        return this.displayName + " (" + this.ip + ":" + this.port + ")";
+        try {
+            return "<p>" + this.userData.getDisplayName() + " (" + this.ip + ":" + this.port + ")</p>";
+        } catch (NullPointerException e) {
+            return "<p>Unbekannt (" + this.ip + ":" + this.port + ")</p>";
+        }
     }
 
 
@@ -59,12 +62,12 @@ public class ConnectedClient {
 
 
     /**
-     * Setzt den Anzeigenamen des Clients.
+     * Gibt die Optionsinstanz des Clients zurück.
      *
-     * @param displayName Der zu setzende Anzeigename.
+     * @return Die Optionsinstanz des Clients.
      */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public Options getOptions() {
+        return this.options;
     }
 
 
@@ -79,12 +82,31 @@ public class ConnectedClient {
 
 
     /**
-     * Gibt die Optionsinstanz des Clients zurück.
+     * Gibt die zum Client gehörige Instanz der Klasse User zurück.
      *
-     * @return Die Optionsinstanz des Clients.
+     * @return Instanz der Klasse User
      */
-    public Options getOptions() {
-        return this.options;
+    public User getUserData() {return this.userData;}
+
+
+    /**
+     * Setzt die zum Client gehörige Instanz der Klasse User.
+     *
+     * @param userData Die zu speichernde Instanz.
+     */
+    public void setUserData(User userData) {
+        this.userData = userData;
+        this.id = userData.getId();
+    }
+
+
+    /**
+     * Überprüft, ob der Client verifiziert ist.
+     *
+     * @return True, wenn der Client verifiziert ist; andernfalls false.
+     */
+    public boolean isVerified() {
+        return this.verified;
     }
 
 
@@ -97,13 +119,4 @@ public class ConnectedClient {
         this.verified = verified;
     }
 
-
-    /**
-     * Überprüft, ob der Client verifiziert ist.
-     *
-     * @return True, wenn der Client verifiziert ist; andernfalls false.
-     */
-    public boolean isVerified() {
-        return this.verified;
-    }
 }

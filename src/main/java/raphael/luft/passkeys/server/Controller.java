@@ -12,7 +12,9 @@ import java.util.Objects;
  * die Benutzerinteraktionen.
  */
 public class Controller {
-    private StringBuilder sb;
+    private StringBuilder mainOutputSb;
+    private ServerHandler serverHandler;
+    private Database database;
 
     @FXML
     private WebView mainOutput;
@@ -31,30 +33,31 @@ public class Controller {
             this.mainOutput.getEngine().setUserStyleSheetLocation(Objects.requireNonNull(getClass().getResource("style.css")).toString());
             this.userView.getEngine().setUserStyleSheetLocation(Objects.requireNonNull(getClass().getResource("style.css")).toString());
         } catch (NullPointerException ignored) {}
-        this.sb = new StringBuilder();
+        this.mainOutputSb = new StringBuilder();
 
-        Database database = new Database("data/serverDB.db");
-        String s = database.connect();
-        if (s.equals("s")) {
+
+
+        this.database = new Database("data/serverDB.db");
+        String status = this.database.connect();
+        if (status.equals("s")) {
             addOutput("</p>Verbindung zur Datenbank hergestellt...</p>");
-            s = database.createTable();
-            if(s.equals("s")) {
+            status = this.database.createTable();
+            if(status.equals("s")) {
                 addOutput("<p>Tabelle wurde angelegt...</p>");
             }
         } else {
-            addOutput("<p class='warning'>Fehler bei Verbindung zur Datenbank: " + s + "</p>");
+            addOutput("<p class='warning'>Fehler bei Verbindung zur Datenbank: " + status + "</p>");
             addOutput("<p class='warning'>Bitte starten Sie das Programm neu.</p>");
         }
 
         this.addOutput("<p>starte Server...</p>");
-        raphael.luft.passkeys.server.helpers.serverHandler serverHandler = new serverHandler(this.userView, this.sb, this.mainOutput, database);
+        this.serverHandler = new ServerHandler(this.userView, this.mainOutputSb, this.mainOutput, this.database);
 
-        if (serverHandler.isOpen()) {
+        if (this.serverHandler.isOpen()) {
             this.addOutput("<p class='important'> Status: aktiv</p>");
         }
-
-
     }
+
 
 
     /**
@@ -63,8 +66,7 @@ public class Controller {
      * @param s Der Text, der zur Ausgabe hinzugefügt werden soll.
      */
     private void addOutput(String s) {
-        this.sb.append(s);
-        this.mainOutput.getEngine().loadContent(this.sb.toString());
-        this.mainOutput.getEngine().executeScript("window.scrollTo(0, document.body.scrollHeight);");
+        this.mainOutputSb.append(s);
+        this.mainOutput.getEngine().loadContent(this.mainOutputSb.toString());
     }
 }
